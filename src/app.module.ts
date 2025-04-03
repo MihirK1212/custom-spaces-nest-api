@@ -3,22 +3,28 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UsersModule } from './module/users/users.module';
+import { UserModule } from './module/user/user.module';
+import { CustomSpaceModule } from './module/custom-space/custom-space.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: './env/.env.development.local'
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres', // Change to 'mysql' if using MySQL
-      host: 'localhost',
-      port: 5432, // Change to 3306 for MySQL
-      username: 'postgres',
-      password: 'Abmikaka2311*POSTGRES*',
+      host: process.env.SQL_DB_HOST,
+      port: parseInt(process.env.SQL_DB_PORT), // Change to 3306 for MySQL
+      username: process.env.SQL_DB_USERNAME,
+      password: process.env.SQL_DB_PASSWORD,
       database: 'custom_spaces',
       autoLoadEntities: true,
       synchronize: true, // Disable in production
     }),
-    MongooseModule.forRoot('mongodb://localhost/custom-spaces'),
-    UsersModule,
+    MongooseModule.forRoot(process.env.MONGO_DB_URL),
+    UserModule,
+    CustomSpaceModule
   ],
   controllers: [AppController],
   providers: [AppService],

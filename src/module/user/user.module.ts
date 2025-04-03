@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/common/db/entity/user.model';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -9,9 +9,8 @@ import { CustomSpace, CustomSpaceSchema } from 'src/common/db/entity/custom-spac
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
-    MongooseModule.forFeature([{ name: CustomSpace.name, schema: CustomSpaceSchema }]),
   ],
-  controllers: [UsersController],
-  providers: [UsersService],
+  controllers: [UserController],
+  providers: [UserService],
 })
-export class UsersModule {}
+export class UserModule {}
