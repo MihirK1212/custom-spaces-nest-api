@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { CustomSpaceService } from './custom-space.service';
-import { CreateCustomSpaceDto } from 'src/common/db/dto/create-custom-space-dto';
+import { CreateCustomSpaceDto } from 'src/common/data/dto/create-custom-space-dto';
 
 @Controller('api/custom_space')
 export class CustomSpaceController {

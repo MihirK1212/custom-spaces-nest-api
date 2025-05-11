@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './module/user/user.module';
 import { CustomSpaceModule } from './module/custom-space/custom-space.module';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './module/auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     MongooseModule.forRoot(process.env.MONGO_DB_URL),
     UserModule,
+    AuthModule,
     CustomSpaceModule
   ],
   controllers: [AppController],

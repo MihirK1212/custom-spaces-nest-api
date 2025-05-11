@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   CustomSpace,
   CustomSpaceSchema,
-} from 'src/common/db/entity/custom-space.schema';
+} from 'src/common/data/entity/custom-space.schema';
 
 @Module({
   imports: [

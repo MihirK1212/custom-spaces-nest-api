@@ -1,20 +1,46 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Param,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { CreateUserDto } from 'src/common/db/dto/create-user-dto';
-import { IUser } from 'src/common/db/interface/user.interface';
-import { CreateCustomSpaceDto } from 'src/common/db/dto/create-custom-space-dto';
+import { UpdateUserDto } from '../../common/data/dto/user.dto';
+import { User } from '../../common/data/entity/user.model';
+import { JWTUserAuthGaurd } from 'src/common/middleware/jwt-user-auth.guard';
 
+@ApiTags('User')
 @Controller('api/user')
 export class UserController {
-  constructor(private readonly usersService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
-  @Get()
-  async getAllUsers(): Promise<IUser[]> {
-    return this.usersService.getAllUsers();
+  @ApiOperation({ summary: 'Get  All Users' })
+  @Get('all')
+  async getAllUsers(): Promise<User[]> {
+    return this.userService.getAllUsers();
   }
 
-  @Post()
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<IUser> {
-    return this.usersService.createUser(createUserDto);
+  @UseGuards(JWTUserAuthGaurd)
+  @ApiOperation({ summary: 'Get user by ID' })
+  @ApiBearerAuth('access-token')
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @Get(':id')
+  async getUser(@Param('id') id: string): Promise<User> {
+    return this.userService.getUser({ where: { id } });
+  }
+
+  @UseGuards(JWTUserAuthGaurd)
+  @ApiOperation({ summary: 'Update existing user' })
+  @ApiBearerAuth('access-token')
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @Put(':id')
+  async updateUser(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    return this.userService.updateUser(id, updateUserDto); 
   }
 }

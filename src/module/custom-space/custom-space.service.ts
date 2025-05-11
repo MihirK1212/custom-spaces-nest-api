@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateCustomSpaceDto } from 'src/common/db/dto/create-custom-space-dto';
-import { CustomSpace } from 'src/common/db/entity/custom-space.schema';
+import { CreateCustomSpaceDto } from 'src/common/data/dto/create-custom-space-dto';
+import { CustomSpace } from 'src/common/data/entity/custom-space.schema';
 
 @Injectable()
 export class CustomSpaceService {

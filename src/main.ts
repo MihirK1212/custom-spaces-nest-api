@@ -11,9 +11,27 @@ async function bootstrap() {
     .setDescription('The Custom Spaces API description')
     .setVersion('1.0')
     .addTag('custom-spaces')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        in: 'header',
+      },
+      'access-token', // This name is referenced later in decorators
+    )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, documentFactory);
+
+  app.enableCors({
+    origin: [
+      'http://localhost:3000'
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH"],
+    credentials: true,
+  });
 
   await app.listen(5000);
 }
