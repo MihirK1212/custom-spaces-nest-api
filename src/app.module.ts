@@ -10,9 +10,7 @@ import { AuthModule } from './module/auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: './env/.env.development.local'
-    }),
+    ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres', // Change to 'mysql' if using MySQL
       host: process.env.SQL_DB_HOST,
@@ -26,7 +24,7 @@ import { AuthModule } from './module/auth/auth.module';
     MongooseModule.forRoot(process.env.MONGO_DB_URL),
     UserModule,
     AuthModule,
-    CustomSpaceModule
+    CustomSpaceModule,
   ],
   controllers: [AppController],
   providers: [AppService],
