@@ -2,14 +2,11 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
-  UpdateDateColumn,
   OneToMany,
   OneToOne,
-  JoinColumn,
 } from 'typeorm';
-import { AuthMethod } from './auth/auth-method.model';
-import { JWTLoginStatus } from './auth/jwt-login-status';
+import { AuthMethod } from '../auth/auth-method.model';
+import { JWTLoginStatus } from '../auth/jwt-login-status';
 
 @Entity()
 export class User {

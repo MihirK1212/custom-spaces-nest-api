@@ -6,17 +6,17 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthMethod } from '../../common/data/entity/auth/auth-method.model';
-import { PasswordAuth } from '../../common/data/entity/auth/password-auth.model';
+import { AuthMethod } from '../../common/entity/auth/auth-method.model';
+import { PasswordAuth } from '../../common/entity/auth/password-auth.model';
 import {
   UpdatePasswordAuthDto,
   UsernamePasswordAuthDto,
-} from '../../common/data/dto/password-auth.dto';
+} from '../../common/dto/auth/password-auth.dto';
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/common/data/entity/user.model';
+import { User } from 'src/common/entity/user/user.model';
 import { JwtService } from '@nestjs/jwt';
 import { DataSource } from 'typeorm';
-import { JWTLoginStatus } from 'src/common/data/entity/auth/jwt-login-status';
+import { JWTLoginStatus } from 'src/common/entity/auth/jwt-login-status';
 
 @Injectable()
 export class AuthService {
@@ -70,7 +70,7 @@ export class AuthService {
       await queryRunner.manager.save(authMethod);
 
       const payload = {
-        sub: user.id,
+        userId: user.id,
         username: user.username,
         authMethodId: authMethod.id,
         tokenPurpose: 'user-auth',
@@ -121,10 +121,10 @@ export class AuthService {
     const user = passwordAuth.authMethod.user;
     const authMethod = passwordAuth.authMethod;
 
-    await this.loginUser(user.id)
+    await this.loginUser(user.id);
 
     const payload = {
-      sub: user.id,
+      userId: user.id,
       username: user.username,
       authMethodId: authMethod.id,
       tokenPurpose: 'user-auth',
@@ -136,12 +136,12 @@ export class AuthService {
   }
 
   async updatePasswordAuth(
-    id: string,
+    userId: string,
     updatePasswordAuthDto: UpdatePasswordAuthDto,
   ): Promise<void> {
     const authMethod = await this.authMethodRepository.findOne({
       where: {
-        user: { id },
+        user: { id: userId },
         methodType: 'password',
       },
       relations: ['passwordAuth'],
@@ -159,12 +159,12 @@ export class AuthService {
     );
 
     await this.passwordAuthRepository.save(authMethod.passwordAuth);
-    await this.logoutUser(id);
+    await this.logoutUser(userId);
   }
 
-  async loginUser(id: string): Promise<void> {
+  async loginUser(userId: string): Promise<void> {
     const status = await this.jwtLoginStatusRepository.findOne({
-      where: { user: { id } },
+      where: { user: { id: userId } },
       relations: ['user'],
     });
 
@@ -173,16 +173,16 @@ export class AuthService {
       await this.jwtLoginStatusRepository.save(status);
     } else {
       const newStatus = this.jwtLoginStatusRepository.create({
-        user: { id },
+        user: { id: userId },
         isLoggedIn: true,
       });
       await this.jwtLoginStatusRepository.save(newStatus);
     }
   }
 
-  async logoutUser(id: string): Promise<void> {
+  async logoutUser(userId: string): Promise<void> {
     const status = await this.jwtLoginStatusRepository.findOne({
-      where: { user: { id } },
+      where: { user: { id: userId } },
       relations: ['user'],
     });
 
@@ -192,12 +192,12 @@ export class AuthService {
     }
   }
 
-  async isLoggedIn(id: string): Promise<boolean> {
+  async isLoggedIn(userId: string): Promise<boolean> {
     const status = await this.jwtLoginStatusRepository.findOne({
-      where: { user: { id } },
+      where: { user: { id: userId } },
       relations: ['user'],
     });
-    
+
     return status?.isLoggedIn ?? false;
   }
 }

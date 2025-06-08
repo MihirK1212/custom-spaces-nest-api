@@ -7,7 +7,7 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from '../user.model';
+import { User } from '../user/user.model';
 import { PasswordAuth } from './password-auth.model';
 import { OAuthAccount } from './oauth-account.model';
 

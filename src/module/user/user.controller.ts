@@ -8,9 +8,9 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { UpdateUserDto } from '../../common/data/dto/user.dto';
-import { User } from '../../common/data/entity/user.model';
-import { JWTUserAuthGaurd } from 'src/common/middleware/jwt-user-auth.guard';
+import { UpdateUserDto } from '../../common/dto/user/user.dto';
+import { User } from '../../common/entity/user/user.model';
+import { JWTUserAuthGaurd, StrictUserMatch } from 'src/common/middleware/jwt-user-auth.guard';
 
 @ApiTags('User')
 @Controller('api/user')
@@ -24,23 +24,25 @@ export class UserController {
   }
 
   @UseGuards(JWTUserAuthGaurd)
+  @StrictUserMatch()
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiBearerAuth('access-token')
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @Get(':id')
-  async getUser(@Param('id') id: string): Promise<User> {
-    return this.userService.getUser({ where: { id } });
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @Get(':userId')
+  async getUser(@Param('userId') userId: string): Promise<User> {
+    return this.userService.getUser({ where: { id: userId } });
   }
 
   @UseGuards(JWTUserAuthGaurd)
+  @StrictUserMatch()
   @ApiOperation({ summary: 'Update existing user' })
   @ApiBearerAuth('access-token')
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @Put(':id')
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @Put(':userId')
   async updateUser(
-    @Param('id') id: string,
+    @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
-    return this.userService.updateUser(id, updateUserDto); 
+    return this.userService.updateUser(userId, updateUserDto); 
   }
 }

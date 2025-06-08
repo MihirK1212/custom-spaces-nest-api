@@ -10,7 +10,11 @@ import { AuthModule } from './module/auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot(
+      {
+        envFilePath: '.env'
+      } // comment this out if you want to use the dockerized postgres container
+    ),
     TypeOrmModule.forRoot({
       type: 'postgres', // Change to 'mysql' if using MySQL
       host: process.env.SQL_DB_HOST,

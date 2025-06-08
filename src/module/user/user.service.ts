@@ -1,18 +1,8 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOneOptions } from 'typeorm';
-import { User } from '../../common/data/entity/user.model';
-import { AuthMethod } from '../../common/data/entity/auth/auth-method.model';
-import { PasswordAuth } from '../../common/data/entity/auth/password-auth.model';
-import { OAuthAccount } from '../../common/data/entity/auth/oauth-account.model';
-import { UpdateUserDto } from '../../common/data/dto/user.dto';
-import { PasswordAuthDto } from '../../common/data/dto/password-auth.dto';
-import { OAuthAuthDto } from '../../common/data/dto/oauth-auth.dto';
-import * as bcrypt from 'bcrypt';
+import { User } from '../../common/entity/user/user.model';
+import { UpdateUserDto } from '../../common/dto/user/user.dto';
 
 @Injectable()
 export class UserService {
@@ -32,8 +22,11 @@ export class UserService {
     return user;
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    await this.userRepository.update(id, updateUserDto);
-    return this.getUser({ where: { id } });
+  async updateUser(
+    userId: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    await this.userRepository.update(userId, updateUserDto);
+    return this.getUser({ where: { id: userId } });
   }
 }

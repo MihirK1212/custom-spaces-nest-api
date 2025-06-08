@@ -1,9 +1,17 @@
 import { Controller, Post, Put, Param, Body, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { PasswordAuthDto, UpdatePasswordAuthDto } from '../../common/data/dto/password-auth.dto';
-import { UsernamePasswordAuthDto } from 'src/common/data/dto/password-auth.dto';
-import { JWTUserAuthGaurd } from '../../common/middleware/jwt-user-auth.guard';
+import { UpdatePasswordAuthDto } from '../../common/dto/auth/password-auth.dto';
+import { UsernamePasswordAuthDto } from 'src/common/dto/auth/password-auth.dto';
+import {
+  JWTUserAuthGaurd,
+  StrictUserMatch,
+} from '../../common/middleware/jwt-user-auth.guard';
 
 @ApiTags('Auth')
 @Controller('api/auth')
@@ -27,14 +35,15 @@ export class AuthController {
   }
 
   @UseGuards(JWTUserAuthGaurd)
+  @StrictUserMatch()
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update password authentication for a user' })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @Put('update/password-auth/:id')
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @Put('update/password-auth/:userId')
   async updatePasswordAuth(
-    @Param('id') id: string,
+    @Param('userId') userId: string,
     @Body() updatePasswordAuthDto: UpdatePasswordAuthDto,
   ): Promise<void> {
-    await this.authService.updatePasswordAuth(id, updatePasswordAuthDto);
+    await this.authService.updatePasswordAuth(userId, updatePasswordAuthDto);
   }
 }

@@ -5,7 +5,7 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../user.model';
+import { User } from '../user/user.model';
 
 @Entity()
 export class JWTLoginStatus {
