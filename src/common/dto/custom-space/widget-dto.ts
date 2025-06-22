@@ -20,10 +20,6 @@ export class CreateWidgetDto {
 
 
 export class UpdateWidgetDto {
-  @ApiProperty({ description: 'Widget Type', example: 'money_split' })
-  @IsString()
-  widgetType?: WidgetType;
-
   @ApiProperty({ description: 'Widget Display Name', example: 'Holiday Money Split' })
   @IsString()
   displayName?: string;

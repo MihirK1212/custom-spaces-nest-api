@@ -10,4 +10,5 @@ export enum WidgetType {
   CONNECTIONS = 'connections',
   HISTORY = 'history',
   PHOTO_STORAGE = 'photo_storage',
+  TODO_LIST = 'todo_list'
 }

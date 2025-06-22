@@ -7,6 +7,7 @@ import { UserModule } from './module/user/user.module';
 import { CustomSpaceModule } from './module/custom-space/custom-space.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './module/auth/auth.module';
+import { TodoListModule } from './module/widget/todo-list/todo-list.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AuthModule } from './module/auth/auth.module';
     UserModule,
     AuthModule,
     CustomSpaceModule,
+    TodoListModule
   ],
   controllers: [AppController],
   providers: [AppService],

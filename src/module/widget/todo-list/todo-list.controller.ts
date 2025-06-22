@@ -3,7 +3,7 @@ import { Controller, Post, Get, Patch, Delete, Param, Body } from '@nestjs/commo
 import { TodoListService } from './todo-list.service';
 import { CreateTodoItemDto, UpdateTodoItemDto } from 'src/common/dto/widget/todo-list/todo-list.dto';
 
-@Controller('widgets/todo')
+@Controller('api/widgets/todo')
 export class TodoListController {
   constructor(private readonly todoListService: TodoListService) {}
 

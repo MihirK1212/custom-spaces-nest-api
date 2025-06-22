@@ -1,0 +1,26 @@
+{
+  "name": "Summer Vacation",
+  "description": "Planning for Summer Vacation",
+  "widgets": [
+    {
+      "widgetType": "money_split",
+      "displayName": "Holiday Money Split",
+      "description": "Holiday Money Split"
+    },
+    {
+      "widgetType": "chat",
+      "displayName": "For Transport Related discussions",
+      "description": ""
+    },
+    {
+      "widgetType": "planning",
+      "displayName": "Planning the holiday schedule",
+      "description": "Lets plan the holiday schedule"
+    },
+    {
+      "widgetType": "chat",
+      "displayName": "For General discussions",
+      "description": "Lets go holiday!"
+    }
+  ]
+}
