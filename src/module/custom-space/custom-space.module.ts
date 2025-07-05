@@ -15,6 +15,7 @@ import {
     WidgetSchema
 } from 'src/common/entity/custom-space/widget.schema';
 import { AuthModule } from '../auth/auth.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
     imports: [
@@ -23,7 +24,8 @@ import { AuthModule } from '../auth/auth.module';
             { name: Widget.name, schema: WidgetSchema },
             { name: SpacePermission.name, schema: SpacePermissionSchema }
         ]),
-        forwardRef(() => AuthModule)
+        forwardRef(() => AuthModule),
+        UserModule
     ],
     controllers: [CustomSpaceController],
     providers: [CustomSpaceService]

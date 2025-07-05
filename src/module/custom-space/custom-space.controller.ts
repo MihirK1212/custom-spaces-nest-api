@@ -22,6 +22,7 @@ import {
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UserSpacePermissionRole } from 'src/common/enums/user-space-permission-role.enum';
 import { CreateCustomSpaceWithWidgetsDto } from 'src/common/dto/custom-space/create-custom-space-with-widgets.dto';
+import { AddPermissionDto, UpdatePermissionDto } from 'src/common/dto/custom-space/permissions-dto';
 
 @Controller('api/custom_space')
 export class CustomSpaceController {
@@ -96,39 +97,43 @@ export class CustomSpaceController {
         return this.service.updateWidget(widgetId, updateWidgetDto);
     }
 
-    // @UseGuards(JWTUserAuthGaurd)
-    // @ApiBearerAuth('access-token')
-    // @StrictUserMatch()
-    // @Post(':userId')
-    // create(@Param('userId') userId: string, @Body() dto: CreateCustomSpaceDto) {
-    //     return this.service.createCustomSpace(userId, dto);
-    // }
+    @ApiOperation({ summary: 'Get permissions for space' })
+    @UseGuards(JWTUserAuthGaurd)
+    @ApiBearerAuth('access-token')
+    @Get(':spaceId/permissions')
+    getPermissionsForSpace(
+        @Param('spaceId') spaceId: string,
+    ) {
+        return this.service.getPermissionsForSpace(spaceId);
+    }
 
-    // @UseGuards(JWTUserAuthGaurd)
-    // @ApiBearerAuth('access-token')
-    // @Get(':spaceId')
-    // get(@Param('spaceId') spaceId: string) {
-    //     return this.service.getCustomSpaceById(spaceId);
-    // }
+    @ApiOperation({ summary: 'Add permission to space' })
+    @UseGuards(JWTUserAuthGaurd)
+    @ApiBearerAuth('access-token')
+    @Post(':spaceId/permissions')
+    addPermission(
+        @Param('spaceId') spaceId: string,
+        @Body() body: AddPermissionDto
+    ) {
+        return this.service.addPermission(spaceId, body.userId, body.role);
+    }
 
-    // @Post(':spaceId/permissions')
-    // addPermission(
-    //     @Param('spaceId') spaceId: string,
-    //     @Body() body: { userId: string; role: UserSpacePermissionRole }
-    // ) {
-    //     return this.service.addPermission(spaceId, body.userId, body.role);
-    // }
+    @ApiOperation({ summary: 'Update permission for space' })
+    @UseGuards(JWTUserAuthGaurd)
+    @ApiBearerAuth('access-token')
+    @Patch('permissions/:permissionId')
+    updatePermission(
+        @Param('permissionId') permissionId: string,
+        @Body() body: UpdatePermissionDto
+    ) {
+        return this.service.updatePermission(permissionId, body.role);
+    }
 
-    // @Patch('permissions/:permissionId')
-    // updatePermission(
-    //     @Param('permissionId') permissionId: string,
-    //     @Body() body: { role: UserSpacePermissionRole }
-    // ) {
-    //     return this.service.updatePermission(permissionId, body.role);
-    // }
-
-    // @Delete('permissions/:permissionId')
-    // removePermission(@Param('permissionId') permissionId: string) {
-    //     return this.service.removePermission(permissionId);
-    // }
+    @ApiOperation({ summary: 'Remove permission from space' })
+    @UseGuards(JWTUserAuthGaurd)
+    @ApiBearerAuth('access-token')
+    @Delete('permissions/:permissionId')
+    removePermission(@Param('permissionId') permissionId: string) {
+        return this.service.removePermission(permissionId);
+    }
 }

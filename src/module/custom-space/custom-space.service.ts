@@ -16,6 +16,7 @@ import {
 } from 'src/common/dto/custom-space/widget-dto';
 import { UserSpacePermissionRole } from 'src/common/enums/user-space-permission-role.enum';
 import { CreateCustomSpaceWithWidgetsDto } from 'src/common/dto/custom-space/create-custom-space-with-widgets.dto';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class CustomSpaceService {
@@ -24,7 +25,8 @@ export class CustomSpaceService {
         private customSpaceModel: Model<CustomSpace>,
         @InjectModel(Widget.name) private widgetModel: Model<Widget>,
         @InjectModel(SpacePermission.name)
-        private permissionModel: Model<SpacePermission>
+        private permissionModel: Model<SpacePermission>,
+        private userService: UserService
     ) {}
 
     async createSpaceWithWidgets(
@@ -186,98 +188,93 @@ export class CustomSpaceService {
         return updatedWidget;
     }
 
-    // async getSpacesGroupedByPermission(
-    //     userId: string
-    // ): Promise<Record<string, CustomSpace[]>> {
-    //     const userPermissions = await this.permissionModel
-    //         .find({ userId: [userId, '*'] })
-    //         .lean();
+    async getPermissionsForSpace(
+        spaceId: string
+    ): Promise<
+        {
+            permissionId: string;
+            user: {
+                userId: string;
+                username: string;
+                email: string;
+                profilePictureUrl: string;
+            };
+            role: UserSpacePermissionRole;
+        }[]
+    > {
+        const permissions = await this.permissionModel.find({ space: new Types.ObjectId(spaceId) });
 
-    //     const permissionMap: Record<string, Types.ObjectId[]> = {};
-    //     for (const perm of userPermissions) {
-    //         if (!permissionMap[perm.role]) {
-    //             permissionMap[perm.role] = [];
-    //         }
-    //         permissionMap[perm.role].push(perm.space);
-    //     }
+        const result = await Promise.all(
+            permissions.map(async (permission) => {
+                try {
+                    const user = await this.userService.getUser({
+                        where: { id: permission.userId }
+                    });
+                    return {
+                        permissionId: permission._id.toString(),
+                        user: {
+                            userId: permission.userId,
+                            username: user.username,
+                            email: user.email,
+                            profilePictureUrl: user.profilePictureUrl
+                        },
+                        role: permission.role
+                    };
+                } catch (error) {
+                    // If user not found, return with default values
+                    return {
+                        permissionId: permission._id.toString(),
+                        user: {
+                            userId: permission.userId,
+                            username: 'Unknown User',
+                            email: null,
+                            profilePictureUrl: null
+                        },
+                        role: permission.role
+                    };
+                }
+            })
+        );
 
-    //     // Step 3: For each role, fetch the corresponding spaces
-    //     const result: Record<string, CustomSpace[]> = {};
-    //     for (const [role, spaceIds] of Object.entries(permissionMap)) {
-    //         const spaces = await this.customSpaceModel
-    //             .find({ _id: { $in: spaceIds } })
-    //             .lean()
-    //             .populate('widgets')
-    //             .populate('permissions');
-    //         result[role] = spaces;
-    //     }
+        return result;
+    }
 
-    //     return result;
-    // }
+    async addPermission(
+        spaceId: string,
+        userId: string,
+        role: UserSpacePermissionRole
+    ) {
+        const permission = new this.permissionModel({
+            space: new Types.ObjectId(spaceId),
+            userId,
+            role
+        });
+        await permission.save();
+        await this.customSpaceModel.findByIdAndUpdate(spaceId, {
+            $addToSet: { permissions: permission._id }
+        });
+        return permission;
+    }
 
-    // async getCustomSpaceById(spaceId: string) {
-    //     return this.customSpaceModel
-    //         .findById(spaceId)
-    //         .populate('widgets')
-    //         .populate('permissions')
-    //         .exec();
-    // }
+    async updatePermission(
+        permissionId: string,
+        role: UserSpacePermissionRole
+    ) {
+        return this.permissionModel.findByIdAndUpdate(
+            permissionId,
+            { role },
+            { new: true }
+        );
+    }
 
-    // async createCustomSpace(userId: string, createDto: CreateCustomSpaceDto) {
-    //     const created = new this.customSpaceModel(createDto);
-    //     const newCustomSpace = await created.save();
-    //     await this.addPermission(
-    //         newCustomSpace.id,
-    //         userId,
-    //         UserSpacePermissionRole.OWNER
-    //     );
-    //     return newCustomSpace;
-    // }
-
-    // async getCustomSpacesWithPermissions(spaceId: string) {
-    //     return this.customSpaceModel
-    //         .findById(spaceId)
-    //         .populate('widgets')
-    //         .populate('permissions')
-    //         .exec();
-    // }
-
-    // async addPermission(
-    //     spaceId: string,
-    //     userId: string,
-    //     role: UserSpacePermissionRole
-    // ) {
-    //     const permission = new this.permissionModel({
-    //         space: spaceId,
-    //         userId,
-    //         role
-    //     });
-    //     await permission.save();
-    //     await this.customSpaceModel.findByIdAndUpdate(spaceId, {
-    //         $addToSet: { permissions: permission._id }
-    //     });
-    //     return permission;
-    // }
-
-    // async updatePermission(
-    //     permissionId: string,
-    //     role: UserSpacePermissionRole
-    // ) {
-    //     return this.permissionModel.findByIdAndUpdate(
-    //         permissionId,
-    //         { role },
-    //         { new: true }
-    //     );
-    // }
-
-    // async removePermission(permissionId: string) {
-    //     const permission =
-    //         await this.permissionModel.findByIdAndDelete(permissionId);
-    //     if (permission) {
-    //         await this.customSpaceModel.findByIdAndUpdate(permission.space, {
-    //             $pull: { permissions: permission._id }
-    //         });
-    //     }
-    //     return permission;
-    // }
+    async removePermission(permissionId: string) {
+        const permission =
+            await this.permissionModel.findByIdAndDelete(permissionId);
+        if (permission) {
+            await this.customSpaceModel.findByIdAndUpdate(permission.space, {
+                $pull: { permissions: permission._id }
+            });
+        }
+        return permission;
+    }
 }
