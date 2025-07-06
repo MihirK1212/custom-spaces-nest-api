@@ -22,11 +22,20 @@ import {
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UserSpacePermissionRole } from 'src/common/enums/user-space-permission-role.enum';
 import { CreateCustomSpaceWithWidgetsDto } from 'src/common/dto/custom-space/create-custom-space-with-widgets.dto';
-import { AddPermissionDto, UpdatePermissionDto } from 'src/common/dto/custom-space/permissions-dto';
+import {
+    AddPermissionDto,
+    UpdatePermissionDto
+} from 'src/common/dto/custom-space/permissions-dto';
+import {
+    CustomSpacePermissionGaurd,
+    SetCustomSpaceAllowedRoles
+} from 'src/common/middleware/custom-space-permission-gaurd';
 
 @Controller('api/custom_space')
 export class CustomSpaceController {
     constructor(private readonly service: CustomSpaceService) {}
+
+    // Space metadata
 
     @ApiOperation({ summary: 'Create custom space with widgets' })
     @UseGuards(JWTUserAuthGaurd)
@@ -50,7 +59,11 @@ export class CustomSpaceController {
     }
 
     @ApiOperation({ summary: 'Update custom space metadata' })
-    @UseGuards(JWTUserAuthGaurd)
+    @UseGuards(JWTUserAuthGaurd, CustomSpacePermissionGaurd)
+    @SetCustomSpaceAllowedRoles([
+        UserSpacePermissionRole.OWNER,
+        UserSpacePermissionRole.ADMIN
+    ])
     @ApiBearerAuth('access-token')
     @Patch(':spaceId')
     updateCustomSpace(
@@ -61,15 +74,23 @@ export class CustomSpaceController {
     }
 
     @ApiOperation({ summary: 'Delete custom space' })
-    @UseGuards(JWTUserAuthGaurd)
+    @UseGuards(JWTUserAuthGaurd, CustomSpacePermissionGaurd)
+    @SetCustomSpaceAllowedRoles([UserSpacePermissionRole.OWNER])
     @ApiBearerAuth('access-token')
     @Delete(':spaceId')
     deleteCustomSpace(@Param('spaceId') spaceId: string) {
         return this.service.deleteCustomSpace(spaceId);
     }
 
+    // Widgets metadata
+
     @ApiOperation({ summary: 'Add Widget to custom space' })
-    @UseGuards(JWTUserAuthGaurd)
+    @UseGuards(JWTUserAuthGaurd, CustomSpacePermissionGaurd)
+    @SetCustomSpaceAllowedRoles([
+        UserSpacePermissionRole.OWNER,
+        UserSpacePermissionRole.ADMIN,
+        UserSpacePermissionRole.WRITE
+    ])
     @ApiBearerAuth('access-token')
     @Post(':spaceId/widget')
     addWidgetToSpace(
@@ -80,14 +101,24 @@ export class CustomSpaceController {
     }
 
     @ApiOperation({ summary: 'Delete Widget from custom space' })
-    @UseGuards(JWTUserAuthGaurd)
+    @UseGuards(JWTUserAuthGaurd, CustomSpacePermissionGaurd)
+    @SetCustomSpaceAllowedRoles([
+        UserSpacePermissionRole.OWNER,
+        UserSpacePermissionRole.ADMIN,
+        UserSpacePermissionRole.WRITE
+    ])
     @ApiBearerAuth('access-token')
     @Delete('widget/:widgetId')
     removeWidgetFromSpace(@Param('widgetId') widgetId: string) {
         return this.service.removeWidgetFromSpace(widgetId);
     }
 
-    @UseGuards(JWTUserAuthGaurd)
+    @UseGuards(JWTUserAuthGaurd, CustomSpacePermissionGaurd)
+    @SetCustomSpaceAllowedRoles([
+        UserSpacePermissionRole.OWNER,
+        UserSpacePermissionRole.ADMIN,
+        UserSpacePermissionRole.WRITE
+    ])
     @ApiBearerAuth('access-token')
     @Patch('widget/:widgetId')
     updateWidget(
@@ -97,18 +128,25 @@ export class CustomSpaceController {
         return this.service.updateWidget(widgetId, updateWidgetDto);
     }
 
+    // Space Permissions
+
     @ApiOperation({ summary: 'Get permissions for space' })
-    @UseGuards(JWTUserAuthGaurd)
+    @UseGuards(JWTUserAuthGaurd, CustomSpacePermissionGaurd)
+    @SetCustomSpaceAllowedRoles([
+        UserSpacePermissionRole.OWNER,
+        UserSpacePermissionRole.ADMIN,
+        UserSpacePermissionRole.WRITE,
+        UserSpacePermissionRole.READ
+    ])
     @ApiBearerAuth('access-token')
     @Get(':spaceId/permissions')
-    getPermissionsForSpace(
-        @Param('spaceId') spaceId: string,
-    ) {
+    getPermissionsForSpace(@Param('spaceId') spaceId: string) {
         return this.service.getPermissionsForSpace(spaceId);
     }
 
     @ApiOperation({ summary: 'Add permission to space' })
-    @UseGuards(JWTUserAuthGaurd)
+    @UseGuards(JWTUserAuthGaurd, CustomSpacePermissionGaurd)
+    @SetCustomSpaceAllowedRoles([UserSpacePermissionRole.OWNER, UserSpacePermissionRole.ADMIN])
     @ApiBearerAuth('access-token')
     @Post(':spaceId/permissions')
     addPermission(
@@ -119,7 +157,8 @@ export class CustomSpaceController {
     }
 
     @ApiOperation({ summary: 'Update permission for space' })
-    @UseGuards(JWTUserAuthGaurd)
+    @UseGuards(JWTUserAuthGaurd, CustomSpacePermissionGaurd)
+    @SetCustomSpaceAllowedRoles([UserSpacePermissionRole.OWNER, UserSpacePermissionRole.ADMIN])
     @ApiBearerAuth('access-token')
     @Patch('permissions/:permissionId')
     updatePermission(
@@ -130,7 +169,8 @@ export class CustomSpaceController {
     }
 
     @ApiOperation({ summary: 'Remove permission from space' })
-    @UseGuards(JWTUserAuthGaurd)
+    @UseGuards(JWTUserAuthGaurd, CustomSpacePermissionGaurd)
+    @SetCustomSpaceAllowedRoles([UserSpacePermissionRole.OWNER, UserSpacePermissionRole.ADMIN])
     @ApiBearerAuth('access-token')
     @Delete('permissions/:permissionId')
     removePermission(@Param('permissionId') permissionId: string) {
