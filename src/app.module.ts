@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './module/auth/auth.module';
 import { TodoListModule } from './module/widget/todo-list/todo-list.module';
 import { ChatModule } from './module/widget/chat/chat.module';
+import { SplitwiseModule } from './module/widget/splitwise/splitwise.module';
 
 @Module({
   imports: [
@@ -32,9 +33,21 @@ import { ChatModule } from './module/widget/chat/chat.module';
     AuthModule,
     CustomSpaceModule,
     TodoListModule,
-    ChatModule
+    ChatModule,
+    SplitwiseModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+
+
+/*
+SQL_DB_HOST="localhost"
+SQL_DB_PORT=5432
+SQL_DB_USERNAME="postgres"
+SQL_DB_PASSWORD="<sql_db_password>"
+MONGO_DB_URL="mongodb://localhost/custom-spaces"
+JWT_SECRET_KEY="<jwt_secret_key>"
+WATCHPACK_POLLING=true 
+*/
