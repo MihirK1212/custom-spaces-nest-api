@@ -18,8 +18,6 @@ export class CustomSpacePermissionGaurd implements CanActivate {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
 
-        
-        
         const allowedRoles = this.reflector.get<UserSpacePermissionRole[]>(
             CUSTOM_SPACE_PERMISSION_GAURD_KEY,
             context.getHandler()

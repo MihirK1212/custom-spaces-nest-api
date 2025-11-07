@@ -6,6 +6,7 @@ import { SplitwiseGroup } from 'src/common/entity/widget/splitwise/splitwise-gro
 import { SplitwiseMember } from 'src/common/entity/widget/splitwise/splitwise-member.entity';
 import { SplitwiseExpense } from 'src/common/entity/widget/splitwise/splitwise-expense.entity';
 import { SplitwiseExpenseAllocation } from 'src/common/entity/widget/splitwise/splitwise-expense-allocation.entity';
+import { CustomSpaceModule } from 'src/module/custom-space/custom-space.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { SplitwiseExpenseAllocation } from 'src/common/entity/widget/splitwise/s
       SplitwiseExpense,
       SplitwiseExpenseAllocation,
     ]),
+    CustomSpaceModule
   ],
   controllers: [SplitwiseController],
   providers: [SplitwiseService],

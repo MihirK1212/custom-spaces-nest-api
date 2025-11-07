@@ -12,6 +12,8 @@ import { SplitwiseExpenseAllocation } from 'src/common/entity/widget/splitwise/s
 import { CreateSplitwiseMemberDto } from 'src/common/dto/widget/splitwise/create-member.dto';
 import { CreateSplitwiseExpenseDto } from 'src/common/dto/widget/splitwise/create-expense.dto';
 import { UpdateSplitwiseExpenseDto } from 'src/common/dto/widget/splitwise/update-expense.dto';
+import { CustomSpaceService } from 'src/module/custom-space/custom-space.service';
+import { UserSpacePermissionRole } from 'src/common/enums/user-space-permission-role.enum';
 
 type BalanceMap = Record<string, number>; // memberId -> net balance (positive means others owe them)
 
@@ -25,7 +27,8 @@ export class SplitwiseService {
         @InjectRepository(SplitwiseExpense)
         private readonly expenseRepo: Repository<SplitwiseExpense>,
         @InjectRepository(SplitwiseExpenseAllocation)
-        private readonly allocationRepo: Repository<SplitwiseExpenseAllocation>
+        private readonly allocationRepo: Repository<SplitwiseExpenseAllocation>,
+        private readonly customSpaceService: CustomSpaceService
     ) {}
 
     // Group bootstrap
@@ -57,8 +60,21 @@ export class SplitwiseService {
     }
 
     async getMembers(widgetId: string): Promise<SplitwiseMember[]> {
-        const group = await this.getOrCreateGroup(widgetId);
-        return this.memberRepo.find({ where: { group: { id: group.id } } });
+        const validUsers = await this.customSpaceService.getValidUsersForWidget(widgetId, Object.values(UserSpacePermissionRole));
+
+        // create members for valid users, each individually, and return only those successfully created
+        const createdMembers: SplitwiseMember[] = [];
+        for (const user of validUsers) {
+            try {
+                const member = await this.addMember(widgetId, { userId: user.id, displayName: user.username });
+                if (member) {
+                    createdMembers.push(member);
+                }
+            } catch (e) {
+                // Skip users who can't be added as members (e.g., DB errors, constraints, etc.)
+            }
+        }
+        return createdMembers;
     }
 
     async removeMember(memberId: string): Promise<void> {

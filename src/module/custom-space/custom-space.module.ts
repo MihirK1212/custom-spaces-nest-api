@@ -28,6 +28,7 @@ import { UserModule } from '../user/user.module';
         UserModule
     ],
     controllers: [CustomSpaceController],
-    providers: [CustomSpaceService]
+    providers: [CustomSpaceService],
+    exports: [CustomSpaceService]
 })
 export class CustomSpaceModule {}

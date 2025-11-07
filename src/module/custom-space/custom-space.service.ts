@@ -22,6 +22,7 @@ import {
     SpacePermissionWithUser,
     SpaceCreationResult
 } from 'src/common/interface/custom-space.interface';
+import { User } from 'src/common/entity/user/user.model';
 
 @Injectable()
 export class CustomSpaceService {
@@ -403,6 +404,31 @@ export class CustomSpaceService {
         }
 
         return permission;
+    }
+
+    async getValidUsersForWidget(
+        widgetId: string,
+        roles: UserSpacePermissionRole[]
+    ): Promise<User[]> {
+        const widget = await this.widgetModel
+            .findById(widgetId)
+            .populate('space');
+        if (!widget) {
+            throw new NotFoundException(`Widget with ID ${widgetId} not found`);
+        }
+        const space = widget.space;
+        const permissions = await this.permissionModel.find({
+            space: space._id
+        });
+        const validUsers = permissions
+            .filter((permission) => roles.includes(permission.role))
+            .map((permission) => permission.userId);
+        const users = await Promise.all(
+            validUsers.map((userId) =>
+                this.userService.getUser({ where: { id: userId } })
+            )
+        );
+        return users.filter((user) => user !== null);
     }
 
     async getWidgetById(widgetId: string): Promise<Widget> {
