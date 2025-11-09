@@ -5,6 +5,7 @@ import { UserSpacePermissionRole } from 'src/common/enums/user-space-permission-
 import { UseGuards } from '@nestjs/common';
 import { JWTUserAuthGaurd } from 'src/common/middleware/jwt-user-auth.guard';
 import { CustomSpacePermissionGaurd, SetCustomSpaceAllowedRoles } from 'src/common/middleware/custom-space-permission-gaurd';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('api/widgets/chats')
 export class ChatController {
@@ -17,6 +18,7 @@ export class ChatController {
       UserSpacePermissionRole.ADMIN,
       UserSpacePermissionRole.WRITE
   ])
+  @ApiBearerAuth('access-token')
   @Get(':widgetId/messages')
   @UsePipes(new ValidationPipe({ transform: true })) // Enables validation and default values for PaginationDto
   getMessages(
